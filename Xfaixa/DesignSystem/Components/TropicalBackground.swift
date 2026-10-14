@@ -28,8 +28,8 @@ struct TropicalBackground: View {
     // MARK: - Private Helpers
 
     private var colors: [Color] {
-        // Dark mode needs stronger accents to stay vivid against the near-black green base.
-        let intensity = colorScheme == .dark ? 1.4 : 1.0
+        // Yellow over the near-black green turns muddy, so dark mode keeps the accents softer.
+        let intensity = colorScheme == .dark ? 0.6 : 1.0
         return [
             .pineappleYellow.opacity(0.45 * intensity), .appBackground, .tropicalOrange.opacity(0.40 * intensity),
             .appBackground, .tropicalOrange.opacity(0.18 * intensity), .appBackground,
