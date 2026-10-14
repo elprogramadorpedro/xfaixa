@@ -17,8 +17,8 @@ struct RootView: View {
             case .auth:
                 AuthFlowView(authService: viewModel.dependencies.authService, onAuthenticated: viewModel.didAuthenticate(as:))
                     .transition(.opacity)
-            case .main:
-                MainTabView(dependencies: viewModel.dependencies)
+            case .main(let user):
+                MainTabView(dependencies: viewModel.dependencies, user: user)
                     .transition(.opacity)
             }
         }
