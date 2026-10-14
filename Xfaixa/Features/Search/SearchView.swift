@@ -1,21 +1,134 @@
 import SwiftUI
 
-/// Search tab: looks up songs in the iTunes catalog.
+/// Search tab: looks up songs in the iTunes catalog as the user types.
 struct SearchView: View {
+
+    // MARK: - Properties
+
+    @State private var viewModel: SearchViewModel
+
+    private static let chipTints: [Color] = [.tropicalOrange, .pineappleYellow, .leafGreen]
+
+    // MARK: - Init
+
+    init(searchService: any MusicSearchService) {
+        _viewModel = State(initialValue: SearchViewModel(searchService: searchService))
+    }
+
+    // MARK: - Body
+
     var body: some View {
         NavigationStack {
-            EmptyStateView(
-                "Busque sua música",
-                systemImage: "music.note",
-                message: "Encontre artistas, álbuns e canções."
-            )
-            .frame(maxHeight: .infinity)
-            .background { TropicalBackground() }
-            .navigationTitle("Buscar")
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background { TropicalBackground() }
+                .navigationTitle("Buscar")
+                .animation(.smooth, value: viewModel.state)
         }
+        .searchable(text: $viewModel.query, prompt: "Artistas, músicas ou álbuns")
+        .task(id: viewModel.query) {
+            await viewModel.search()
+        }
+    }
+
+    // MARK: - States
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.state {
+        case .idle:
+            suggestions
+        case .loading:
+            songList(Song.previews, isPlaceholder: true)
+        case .loaded(let songs):
+            songList(songs, isPlaceholder: false)
+        case .empty:
+            EmptyStateView(
+                "Nada encontrado",
+                systemImage: "magnifyingglass",
+                message: "Não encontramos músicas para “\(viewModel.query)”. Tente outro termo."
+            )
+        case .failed(let error):
+            EmptyStateView(
+                "Não foi possível buscar",
+                systemImage: error == .offline ? "wifi.slash" : "exclamationmark.triangle.fill",
+                message: "\(error.message)",
+                actionTitle: "Tentar novamente"
+            ) {
+                Task { await viewModel.retry() }
+            }
+        }
+    }
+
+    private var suggestions: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.lg) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("O que vamos ouvir hoje?")
+                        .font(Typography.title)
+                        .foregroundStyle(Color.textPrimary)
+                    Text("Comece por uma sugestão ou busque pelo seu artista favorito.")
+                        .font(Typography.callout)
+                        .foregroundStyle(Color.textSecondary)
+                }
+
+                // One container lets neighbouring chips blend into a single glass layer.
+                GlassEffectContainer(spacing: Spacing.xs) {
+                    FlowLayout(spacing: Spacing.xs) {
+                        ForEach(Array(viewModel.suggestions.enumerated()), id: \.element) { index, suggestion in
+                            ChipButton(
+                                title: suggestion,
+                                systemImage: "music.note",
+                                tint: Self.chipTints[index % Self.chipTints.count].opacity(0.35)
+                            ) {
+                                viewModel.selectSuggestion(suggestion)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(Spacing.lg)
+        }
+        .transition(.opacity)
+    }
+
+    private func songList(_ songs: [Song], isPlaceholder: Bool) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: Spacing.sm) {
+                Group {
+                    if isPlaceholder {
+                        Text("Buscando…")
+                    } else {
+                        Text("^[\(songs.count) música](inflect: true)")
+                    }
+                }
+                .font(Typography.caption)
+                .foregroundStyle(Color.textSecondary)
+                .padding(.horizontal, Spacing.xs)
+
+                ForEach(songs) { song in
+                    SongRow(
+                        title: song.title,
+                        artist: song.artist,
+                        artworkURL: isPlaceholder ? nil : song.artworkURL,
+                        onToggleFavorite: {},
+                        onTogglePlay: {}
+                    )
+                }
+            }
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+        }
+        .redacted(reason: isPlaceholder ? .placeholder : [])
+        .allowsHitTesting(!isPlaceholder)
+        .transition(.opacity)
     }
 }
 
-#Preview {
-    SearchView()
+#Preview("Results") {
+    SearchView(searchService: PreviewMusicSearchService())
+}
+
+#Preview("Error") {
+    SearchView(searchService: PreviewMusicSearchService(result: .failure(.offline)))
 }

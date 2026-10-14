@@ -9,6 +9,8 @@ struct MainTabView: View {
         case search
     }
 
+    let dependencies: AppDependencies
+
     @State private var selection: AppTab = .search
 
     var body: some View {
@@ -20,7 +22,7 @@ struct MainTabView: View {
                 ProfileView()
             }
             Tab("Buscar", systemImage: "magnifyingglass", value: .search, role: .search) {
-                SearchView()
+                SearchView(searchService: dependencies.searchService)
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
@@ -29,6 +31,6 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView()
+    MainTabView(dependencies: .preview())
         .environment(RootViewModel.preview())
 }
