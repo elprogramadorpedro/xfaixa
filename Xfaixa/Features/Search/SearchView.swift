@@ -8,12 +8,15 @@ struct SearchView: View {
     @State private var viewModel: SearchViewModel
     @Environment(FavoritesStore.self) private var favoritesStore
 
+    private let connectivity: any ConnectivityMonitoring
+
     private static let chipTints: [Color] = [.tropicalOrange, .pineappleYellow, .leafGreen]
 
     // MARK: - Init
 
-    init(searchService: any MusicSearchService) {
-        _viewModel = State(initialValue: SearchViewModel(searchService: searchService))
+    init(searchService: any MusicSearchService, connectivity: any ConnectivityMonitoring) {
+        self.connectivity = connectivity
+        _viewModel = State(initialValue: SearchViewModel(searchService: searchService, connectivity: connectivity))
     }
 
     // MARK: - Body
@@ -29,6 +32,9 @@ struct SearchView: View {
         .searchable(text: $viewModel.query, prompt: "Artistas, músicas ou álbuns")
         .task(id: viewModel.query) {
             await viewModel.search()
+        }
+        .task(id: connectivity.isConnected) {
+            await viewModel.connectivityChanged(isConnected: connectivity.isConnected)
         }
     }
 
@@ -128,11 +134,11 @@ struct SearchView: View {
 }
 
 #Preview("Results") {
-    SearchView(searchService: PreviewMusicSearchService())
+    SearchView(searchService: PreviewMusicSearchService(), connectivity: StaticConnectivityMonitor())
         .environment(FavoritesStore.preview())
 }
 
-#Preview("Error") {
-    SearchView(searchService: PreviewMusicSearchService(result: .failure(.offline)))
+#Preview("Offline") {
+    SearchView(searchService: PreviewMusicSearchService(), connectivity: StaticConnectivityMonitor(isConnected: false))
         .environment(FavoritesStore.preview(seeded: false))
 }

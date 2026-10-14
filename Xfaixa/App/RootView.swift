@@ -8,6 +8,11 @@ struct RootView: View {
         _viewModel = State(initialValue: viewModel)
     }
 
+    // The splash is a brand moment; connectivity only matters once the user can act on it.
+    private var isShowingOfflineBanner: Bool {
+        !viewModel.dependencies.connectivity.isConnected && viewModel.route != .splash
+    }
+
     var body: some View {
         ZStack {
             switch viewModel.route {
@@ -23,6 +28,17 @@ struct RootView: View {
             }
         }
         .animation(.smooth(duration: 0.5), value: viewModel.route)
+        .overlay(alignment: .top) {
+            if isShowingOfflineBanner {
+                OfflineBanner()
+                    .padding(.top, Spacing.xs)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(duration: 0.45, bounce: 0.3), value: isShowingOfflineBanner)
+        .onChange(of: viewModel.dependencies.connectivity.isConnected) { _, isConnected in
+            AccessibilityNotification.Announcement(isConnected ? "Conexão restabelecida" : "Sem conexão").post()
+        }
         .environment(viewModel)
     }
 }
@@ -33,4 +49,8 @@ struct RootView: View {
 
 #Preview("Signed in") {
     RootView(viewModel: .preview())
+}
+
+#Preview("Offline") {
+    RootView(viewModel: RootViewModel(dependencies: .preview(isConnected: false)))
 }
