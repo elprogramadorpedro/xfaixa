@@ -9,14 +9,15 @@ struct PrimaryButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                label
-                    .opacity(isLoading ? 0 : 1)
-                if isLoading {
-                    ProgressView()
-                        .tint(.white)
+            label
+                .opacity(isLoading ? 0 : 1)
+                // Overlaying the spinner keeps the button height driven by the label, so it never jumps.
+                .overlay {
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                    }
                 }
-            }
             .font(Typography.headline)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.xxs)
