@@ -13,6 +13,7 @@ struct MainTabView: View {
     // MARK: - Properties
 
     let dependencies: AppDependencies
+    let user: AppUser
 
     @State private var selection: AppTab = .search
     @State private var favoritesStore: FavoritesStore
@@ -21,6 +22,7 @@ struct MainTabView: View {
 
     init(dependencies: AppDependencies, user: AppUser) {
         self.dependencies = dependencies
+        self.user = user
         _favoritesStore = State(initialValue: FavoritesStore(userId: user.id, modelContainer: dependencies.modelContainer))
     }
 
@@ -32,7 +34,12 @@ struct MainTabView: View {
                 FavoritesView { selection = .search }
             }
             Tab("Perfil", systemImage: "person.crop.circle", value: .profile) {
-                ProfileView()
+                ProfileView(viewModel: ProfileViewModel(
+                    user: user,
+                    authService: dependencies.authService,
+                    avatarStore: dependencies.avatarStore,
+                    favoritesStore: favoritesStore
+                ))
             }
             Tab("Buscar", systemImage: "magnifyingglass", value: .search, role: .search) {
                 SearchView(searchService: dependencies.searchService)
