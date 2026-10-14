@@ -7,12 +7,14 @@ struct AppDependencies {
     let authService: any AuthService
     let searchService: any MusicSearchService
     let modelContainer: ModelContainer
+    let avatarStore: any AvatarStore
 
     static func live() -> AppDependencies {
         AppDependencies(
             authService: InMemoryAuthService(),
             searchService: ITunesSearchService(),
-            modelContainer: ModelContainerFactory.make()
+            modelContainer: ModelContainerFactory.make(),
+            avatarStore: UserDefaultsAvatarStore()
         )
     }
 
@@ -20,7 +22,8 @@ struct AppDependencies {
         AppDependencies(
             authService: InMemoryAuthService(latency: .zero, currentUser: user),
             searchService: PreviewMusicSearchService(),
-            modelContainer: ModelContainerFactory.make(inMemory: true)
+            modelContainer: ModelContainerFactory.make(inMemory: true),
+            avatarStore: InMemoryAvatarStore()
         )
     }
 }
