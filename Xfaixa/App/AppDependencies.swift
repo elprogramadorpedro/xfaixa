@@ -11,9 +11,16 @@ struct AppDependencies {
     let connectivity: any ConnectivityMonitoring
     let player: PlayerService
 
-    static func live() -> AppDependencies {
-        AppDependencies(
-            authService: InMemoryAuthService(),
+    /// Launch argument UI tests pass so they run against the in-memory backend instead of real Firebase accounts.
+    static let uiTestingArgument = "-ui-testing"
+
+    static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
+        // A fresh clone has no GoogleService-Info.plist; falling back to the demo backend keeps it runnable instead of crashing.
+        let hasFirebaseConfig = Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist") != nil
+        let usesFirebase = hasFirebaseConfig && !arguments.contains(uiTestingArgument)
+
+        return AppDependencies(
+            authService: usesFirebase ? FirebaseAuthService() : InMemoryAuthService(),
             searchService: ITunesSearchService(),
             modelContainer: ModelContainerFactory.make(),
             avatarStore: UserDefaultsAvatarStore(),
