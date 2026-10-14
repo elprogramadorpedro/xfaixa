@@ -187,10 +187,11 @@
 				};
 			};
 			buildConfigurationList = 1976F068307F0E2C00BC7837 /* Build configuration list for PBXProject "Xfaixa" */;
-			developmentRegion = en;
+			developmentRegion = "pt-BR";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"pt-BR",
 				Base,
 			);
 			mainGroup = 1976F064307F0E2C00BC7837;
