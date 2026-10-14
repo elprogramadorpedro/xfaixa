@@ -16,6 +16,8 @@ final class FavoritesStore {
     private(set) var favorites: [FavoriteSong] = []
     private(set) var favoriteIDs: Set<Int> = []
 
+    // Kept strongly because a ModelContext doesn't own its container; losing it invalidates every model.
+    private let modelContainer: ModelContainer
     private let context: ModelContext
     private let loadArtwork: ArtworkLoader
     private let logger = Logger(subsystem: "devpedrovillalba.Xfaixa", category: "Favorites")
@@ -29,6 +31,7 @@ final class FavoritesStore {
     ) {
         self.userId = userId
         self.loadArtwork = loadArtwork
+        self.modelContainer = modelContainer
         context = modelContainer.mainContext
         reload()
     }
