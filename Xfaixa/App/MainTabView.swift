@@ -46,8 +46,12 @@ struct MainTabView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+        .tabViewBottomAccessory(isEnabled: dependencies.player.currentSong != nil) {
+            MiniPlayerView()
+        }
         .tint(.tropicalOrange)
         .environment(favoritesStore)
+        .environment(dependencies.player)
     }
 }
 

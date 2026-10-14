@@ -9,6 +9,7 @@ struct AppDependencies {
     let modelContainer: ModelContainer
     let avatarStore: any AvatarStore
     let connectivity: any ConnectivityMonitoring
+    let player: PlayerService
 
     static func live() -> AppDependencies {
         AppDependencies(
@@ -16,7 +17,8 @@ struct AppDependencies {
             searchService: ITunesSearchService(),
             modelContainer: ModelContainerFactory.make(),
             avatarStore: UserDefaultsAvatarStore(),
-            connectivity: NetworkMonitor()
+            connectivity: NetworkMonitor(),
+            player: PlayerService()
         )
     }
 
@@ -26,7 +28,8 @@ struct AppDependencies {
             searchService: PreviewMusicSearchService(),
             modelContainer: ModelContainerFactory.make(inMemory: true),
             avatarStore: InMemoryAvatarStore(),
-            connectivity: StaticConnectivityMonitor(isConnected: isConnected)
+            connectivity: StaticConnectivityMonitor(isConnected: isConnected),
+            player: PlayerService()
         )
     }
 }
