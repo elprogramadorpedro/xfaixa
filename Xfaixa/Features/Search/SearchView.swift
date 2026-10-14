@@ -6,6 +6,7 @@ struct SearchView: View {
     // MARK: - Properties
 
     @State private var viewModel: SearchViewModel
+    @Environment(FavoritesStore.self) private var favoritesStore
 
     private static let chipTints: [Color] = [.tropicalOrange, .pineappleYellow, .leafGreen]
 
@@ -111,7 +112,8 @@ struct SearchView: View {
                         title: song.title,
                         artist: song.artist,
                         artworkURL: isPlaceholder ? nil : song.artworkURL,
-                        onToggleFavorite: {},
+                        isFavorite: !isPlaceholder && favoritesStore.isFavorite(song),
+                        onToggleFavorite: { favoritesStore.toggle(song) },
                         onTogglePlay: {}
                     )
                 }
@@ -127,8 +129,10 @@ struct SearchView: View {
 
 #Preview("Results") {
     SearchView(searchService: PreviewMusicSearchService())
+        .environment(FavoritesStore.preview())
 }
 
 #Preview("Error") {
     SearchView(searchService: PreviewMusicSearchService(result: .failure(.offline)))
+        .environment(FavoritesStore.preview(seeded: false))
 }
