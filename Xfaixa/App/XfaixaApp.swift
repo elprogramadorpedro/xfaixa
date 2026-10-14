@@ -2,8 +2,8 @@ import SwiftUI
 
 @main
 struct XfaixaApp: App {
-    // Swapping this single dependency is all it takes to move to another auth provider.
-    @State private var rootViewModel = RootViewModel(authService: InMemoryAuthService())
+    // Every concrete service is chosen in AppDependencies.live(), so swapping a backend touches a single place.
+    @State private var rootViewModel = RootViewModel(dependencies: .live())
 
     var body: some Scene {
         WindowGroup {

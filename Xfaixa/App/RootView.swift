@@ -15,10 +15,10 @@ struct RootView: View {
                 SplashView(onFinished: viewModel.splashDidFinish)
                     .transition(.opacity.combined(with: .scale(scale: 1.08)))
             case .auth:
-                AuthFlowView(authService: viewModel.authService, onAuthenticated: viewModel.didAuthenticate(as:))
+                AuthFlowView(authService: viewModel.dependencies.authService, onAuthenticated: viewModel.didAuthenticate(as:))
                     .transition(.opacity)
             case .main:
-                MainTabView()
+                MainTabView(dependencies: viewModel.dependencies)
                     .transition(.opacity)
             }
         }
