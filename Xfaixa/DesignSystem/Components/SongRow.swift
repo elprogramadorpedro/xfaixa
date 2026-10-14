@@ -15,26 +15,31 @@ struct SongRow: View {
     let onToggleFavorite: () -> Void
     let onTogglePlay: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: Spacing.sm) {
-            ArtworkView(url: artworkURL, data: artworkData)
-
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(title)
-                    .font(Typography.headline)
-                    .foregroundStyle(Color.textPrimary)
-                Text(artist)
-                    .font(Typography.subheadline)
-                    .foregroundStyle(Color.textSecondary)
+        Group {
+            // At accessibility sizes the text gets its own line; squeezed next to the controls it would truncate to a few letters.
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    HStack(spacing: Spacing.sm) {
+                        ArtworkView(url: artworkURL, data: artworkData)
+                        Spacer()
+                        favoriteButton
+                        playButton
+                    }
+                    details(lineLimit: 3)
+                }
+            } else {
+                HStack(spacing: Spacing.sm) {
+                    ArtworkView(url: artworkURL, data: artworkData)
+                    details(lineLimit: 1)
+                    favoriteButton
+                    playButton
+                }
             }
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-
-            favoriteButton
-            playButton
         }
         .padding(Spacing.sm)
         // Rows are content, not controls: a translucent surface keeps glass reserved for the floating layer.
@@ -42,6 +47,20 @@ struct SongRow: View {
     }
 
     // MARK: - Private Helpers
+
+    private func details(lineLimit: Int) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text(title)
+                .font(Typography.headline)
+                .foregroundStyle(Color.textPrimary)
+            Text(artist)
+                .font(Typography.subheadline)
+                .foregroundStyle(Color.textSecondary)
+        }
+        .lineLimit(lineLimit)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+    }
 
     private var favoriteButton: some View {
         Button(action: onToggleFavorite) {
