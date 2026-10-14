@@ -1,19 +1,29 @@
 import SwiftUI
 
-/// Album artwork loaded from a remote URL, falling back to a branded gradient placeholder.
+/// Album artwork from locally stored data when available, otherwise loaded from a remote URL,
+/// falling back to a branded gradient placeholder.
 struct ArtworkView: View {
     let url: URL?
+    var data: Data?
     var size: CGFloat = Size.artworkRow
     var cornerRadius: CGFloat = Radius.sm
 
     var body: some View {
-        AsyncImage(url: url, transaction: Transaction(animation: .easeOut(duration: 0.25))) { phase in
-            if case .success(let image) = phase {
-                image
+        Group {
+            if let data, let image = UIImage(data: data) {
+                Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
             } else {
-                placeholder
+                AsyncImage(url: url, transaction: Transaction(animation: .easeOut(duration: 0.25))) { phase in
+                    if case .success(let image) = phase {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        placeholder
+                    }
+                }
             }
         }
         .frame(width: size, height: size)
