@@ -42,6 +42,8 @@ final class AuthFlowUITests: XCTestCase {
     @MainActor
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
+        // Keeps UI tests deterministic: the app swaps Firebase for its in-memory auth with the demo account.
+        app.launchArguments = ["-ui-testing"]
         app.launch()
         return app
     }
