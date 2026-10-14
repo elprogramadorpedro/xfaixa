@@ -35,7 +35,7 @@ struct SongRow: View {
             } else {
                 HStack(spacing: Spacing.sm) {
                     ArtworkView(url: artworkURL, data: artworkData)
-                    details(lineLimit: 1)
+                    details(lineLimit: 2)
                     favoriteButton
                     playButton
                 }
