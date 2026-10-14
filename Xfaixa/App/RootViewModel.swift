@@ -37,6 +37,8 @@ final class RootViewModel {
     }
 
     func didSignOut() {
+        // A preview shouldn't keep playing over the login screen of a signed-out session.
+        dependencies.player.stop()
         currentUser = nil
         route = .auth
     }
