@@ -42,7 +42,7 @@ struct MainTabView: View {
                 ))
             }
             Tab("Buscar", systemImage: "magnifyingglass", value: .search, role: .search) {
-                SearchView(searchService: dependencies.searchService)
+                SearchView(searchService: dependencies.searchService, connectivity: dependencies.connectivity)
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)

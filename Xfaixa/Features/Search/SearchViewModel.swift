@@ -23,13 +23,19 @@ final class SearchViewModel {
     let suggestions = ["Bossa Nova", "Anitta", "Reggae", "Samba", "Pop"]
 
     private let searchService: any MusicSearchService
+    private let connectivity: any ConnectivityMonitoring
     private let debounce: Duration
     private var skipsNextDebounce = false
 
     // MARK: - Init
 
-    init(searchService: any MusicSearchService, debounce: Duration = .milliseconds(400)) {
+    init(
+        searchService: any MusicSearchService,
+        connectivity: any ConnectivityMonitoring,
+        debounce: Duration = .milliseconds(400)
+    ) {
         self.searchService = searchService
+        self.connectivity = connectivity
         self.debounce = debounce
     }
 
@@ -62,6 +68,12 @@ final class SearchViewModel {
         await performSearch(trimmedQuery)
     }
 
+    /// Re-runs a search that failed only because the device was offline, as soon as the connection is back.
+    func connectivityChanged(isConnected: Bool) async {
+        guard isConnected, state == .failed(.offline) else { return }
+        await retry()
+    }
+
     /// A tapped suggestion is a deliberate choice, so it searches right away instead of waiting for the debounce.
     func selectSuggestion(_ suggestion: String) {
         skipsNextDebounce = true
@@ -75,6 +87,12 @@ final class SearchViewModel {
     }
 
     private func performSearch(_ term: String) async {
+        // Failing fast avoids waiting for URLSession to time out when the path is known to be down.
+        guard connectivity.isConnected else {
+            state = .failed(.offline)
+            return
+        }
+
         state = .loading
         do {
             let songs = try await searchService.searchSongs(matching: term)
