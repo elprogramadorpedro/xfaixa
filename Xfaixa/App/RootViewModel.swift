@@ -13,13 +13,16 @@ final class RootViewModel {
 
     // MARK: - Properties
 
+    let authService: any AuthService
+
     private(set) var route: Route = .splash
     private(set) var currentUser: AppUser?
 
     // MARK: - Init
 
-    init(currentUser: AppUser? = nil) {
-        self.currentUser = currentUser
+    init(authService: any AuthService) {
+        self.authService = authService
+        currentUser = authService.currentUser
     }
 
     // MARK: - Public API
@@ -36,5 +39,11 @@ final class RootViewModel {
     func didSignOut() {
         currentUser = nil
         route = .auth
+    }
+}
+
+extension RootViewModel {
+    static func preview(signedIn: Bool = true) -> RootViewModel {
+        RootViewModel(authService: InMemoryAuthService(latency: .zero, currentUser: signedIn ? .preview : nil))
     }
 }

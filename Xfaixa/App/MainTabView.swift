@@ -30,5 +30,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
-        .environment(RootViewModel(currentUser: .preview))
+        .environment(RootViewModel.preview())
 }

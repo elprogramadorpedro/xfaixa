@@ -4,7 +4,7 @@ import SwiftUI
 struct RootView: View {
     @State private var viewModel: RootViewModel
 
-    init(viewModel: RootViewModel = RootViewModel()) {
+    init(viewModel: RootViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -15,7 +15,7 @@ struct RootView: View {
                 SplashView(onFinished: viewModel.splashDidFinish)
                     .transition(.opacity.combined(with: .scale(scale: 1.08)))
             case .auth:
-                AuthFlowView(onAuthenticated: viewModel.didAuthenticate(as:))
+                AuthFlowView(authService: viewModel.authService, onAuthenticated: viewModel.didAuthenticate(as:))
                     .transition(.opacity)
             case .main:
                 MainTabView()
@@ -28,9 +28,9 @@ struct RootView: View {
 }
 
 #Preview("Signed out") {
-    RootView()
+    RootView(viewModel: .preview(signedIn: false))
 }
 
 #Preview("Signed in") {
-    RootView(viewModel: RootViewModel(currentUser: .preview))
+    RootView(viewModel: .preview())
 }

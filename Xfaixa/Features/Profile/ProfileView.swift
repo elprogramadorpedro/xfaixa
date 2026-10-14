@@ -23,5 +23,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
-        .environment(RootViewModel(currentUser: .preview))
+        .environment(RootViewModel.preview())
 }
