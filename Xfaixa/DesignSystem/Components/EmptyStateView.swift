@@ -48,6 +48,7 @@ struct EmptyStateView<Illustration: View>: View {
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
                     .font(Typography.headline)
+                    .foregroundStyle(Color.onAccent)
                     .buttonStyle(.glassProminent)
                     .tint(.tropicalOrange)
                     .controlSize(.large)
