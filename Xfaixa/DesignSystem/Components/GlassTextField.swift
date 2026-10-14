@@ -89,6 +89,8 @@ struct GlassTextField: View {
             Image(systemName: isRevealed ? "eye.slash" : "eye")
                 .foregroundStyle(Color.textSecondary)
                 .contentTransition(.symbolEffect(.replace))
+                .frame(width: Size.iconButton, height: Size.iconButton)
+                .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isRevealed ? "Ocultar senha" : "Mostrar senha")
