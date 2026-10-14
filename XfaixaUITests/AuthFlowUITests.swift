@@ -2,24 +2,24 @@ import XCTest
 
 final class AuthFlowUITests: XCTestCase {
 
-    private var app: XCUIApplication!
-
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.launch()
     }
 
     @MainActor
     func testWrongPasswordShowsAnErrorUnderTheField() throws {
-        signIn(email: "demo@xfaixa.app", password: "errada")
+        let app = launchApp()
+
+        signIn(app, email: "demo@xfaixa.app", password: "errada")
 
         XCTAssertTrue(app.staticTexts["E-mail ou senha incorretos"].waitForExistence(timeout: 5))
     }
 
     @MainActor
     func testDemoAccountReachesSearch() throws {
-        signIn(email: "demo@xfaixa.app", password: "123456")
+        let app = launchApp()
+
+        signIn(app, email: "demo@xfaixa.app", password: "123456")
 
         XCTAssertTrue(app.staticTexts["O que vamos ouvir hoje?"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["Bossa Nova"].exists)
@@ -27,6 +27,7 @@ final class AuthFlowUITests: XCTestCase {
 
     @MainActor
     func testCreateAccountLinkOpensSignUp() throws {
+        let app = launchApp()
         let createAccount = app.buttons["Criar conta"]
         XCTAssertTrue(createAccount.waitForExistence(timeout: 8))
 
@@ -39,7 +40,14 @@ final class AuthFlowUITests: XCTestCase {
     // MARK: - Private Helpers
 
     @MainActor
-    private func signIn(email: String, password: String) {
+    private func launchApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launch()
+        return app
+    }
+
+    @MainActor
+    private func signIn(_ app: XCUIApplication, email: String, password: String) {
         let emailField = app.textFields["E-mail"]
         // The splash runs first, so give it time to hand over to the login screen.
         XCTAssertTrue(emailField.waitForExistence(timeout: 8))
