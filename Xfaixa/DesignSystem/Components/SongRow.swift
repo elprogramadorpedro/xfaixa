@@ -9,6 +9,7 @@ struct SongRow: View {
     let title: String
     let artist: String
     let artworkURL: URL?
+    var artworkData: Data?
     var isFavorite = false
     var isPlaying = false
     let onToggleFavorite: () -> Void
@@ -18,7 +19,7 @@ struct SongRow: View {
 
     var body: some View {
         HStack(spacing: Spacing.sm) {
-            ArtworkView(url: artworkURL)
+            ArtworkView(url: artworkURL, data: artworkData)
 
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(title)

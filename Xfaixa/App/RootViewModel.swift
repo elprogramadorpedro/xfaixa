@@ -8,7 +8,7 @@ final class RootViewModel {
     enum Route: Hashable {
         case splash
         case auth
-        case main
+        case main(AppUser)
     }
 
     // MARK: - Properties
@@ -28,12 +28,12 @@ final class RootViewModel {
     // MARK: - Public API
 
     func splashDidFinish() {
-        route = currentUser == nil ? .auth : .main
+        route = currentUser.map(Route.main) ?? .auth
     }
 
     func didAuthenticate(as user: AppUser) {
         currentUser = user
-        route = .main
+        route = .main(user)
     }
 
     func didSignOut() {
