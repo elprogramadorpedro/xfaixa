@@ -44,6 +44,8 @@ struct LoginView: View {
                     Button("Esqueci minha senha", action: onForgotPassword)
                         .font(Typography.subheadline.weight(.semibold))
                         .foregroundStyle(Color.deepGreen)
+                        .frame(minHeight: Size.iconButton)
+                        .contentShape(.rect)
                 }
 
                 VStack(spacing: Spacing.md) {
@@ -62,6 +64,8 @@ struct LoginView: View {
                         Button("Criar conta", action: onCreateAccount)
                             .fontWeight(.semibold)
                             .foregroundStyle(Color.deepGreen)
+                            .frame(minHeight: Size.iconButton)
+                            .contentShape(.rect)
                     }
                     .font(Typography.subheadline)
                 }

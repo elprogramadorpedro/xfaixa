@@ -81,6 +81,7 @@ struct ProfileView: View {
             Text(viewModel.fruit.emoji)
                 .font(.system(size: avatarSize * 0.5))
                 .contentTransition(.numericText())
+                .accessibilityHidden(true)
                 .frame(width: avatarSize, height: avatarSize)
                 .glassEffect(.regular.tint(viewModel.fruit.tint.opacity(0.35)).interactive(), in: .circle)
                 .overlay(alignment: .bottomTrailing) {
@@ -106,7 +107,8 @@ struct ProfileView: View {
                 tint: .tropicalOrange
             )
             statCard(
-                value: Text(viewModel.fruit.emoji),
+                // The emoji is decorative here; VoiceOver reads the fruit name below it.
+                value: Text(viewModel.fruit.emoji).accessibilityHidden(true),
                 label: Text(viewModel.fruit.name),
                 systemImage: "leaf.fill",
                 tint: .leafGreen
@@ -114,7 +116,7 @@ struct ProfileView: View {
         }
     }
 
-    private func statCard(value: Text, label: Text, systemImage: String, tint: Color) -> some View {
+    private func statCard(value: some View, label: Text, systemImage: String, tint: Color) -> some View {
         GlassCard(tint: tint.opacity(0.18)) {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Image(systemName: systemImage)

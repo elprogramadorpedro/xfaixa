@@ -23,6 +23,8 @@ struct PineappleView: View {
             fruit
         }
         .frame(width: size, height: size * 1.5)
+        // Without this, a parent transition animates each leaf's position on its own and the crown drifts off the fruit.
+        .geometryGroup()
         .accessibilityElement()
         .accessibilityLabel("Abacaxi")
     }

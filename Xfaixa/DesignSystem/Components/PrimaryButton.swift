@@ -15,10 +15,12 @@ struct PrimaryButton: View {
                 .overlay {
                     if isLoading {
                         ProgressView()
-                            .tint(.white)
+                            .tint(Color.onAccent)
                     }
                 }
             .font(Typography.headline)
+            // Dark text on the orange reaches about 8:1; white on systemOrange only gets to about 2:1.
+            .foregroundStyle(Color.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.xxs)
         }

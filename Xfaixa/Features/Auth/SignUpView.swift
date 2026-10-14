@@ -71,6 +71,8 @@ struct SignUpView: View {
                         Button("Entrar") { dismiss() }
                             .fontWeight(.semibold)
                             .foregroundStyle(Color.deepGreen)
+                            .frame(minHeight: Size.iconButton)
+                            .contentShape(.rect)
                     }
                     .font(Typography.subheadline)
                 }
