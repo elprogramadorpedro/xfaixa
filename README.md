@@ -44,6 +44,7 @@ The interface is in Brazilian Portuguese. Code, comments and documentation are i
 |---|---|
 | UI | SwiftUI, Liquid Glass (`glassEffect`, `GlassEffectContainer`, `glassEffectID`, `.glass` / `.glassProminent`) |
 | State | Observation (`@Observable`), MVVM with `@MainActor` view models |
+| Accounts | Firebase Authentication (email and password) |
 | Concurrency | Swift 6 language mode, async/await, typed throws, `@concurrent` |
 | Networking | `URLSession` with a generic, protocol-based API client |
 | Persistence | SwiftData for favorites, `UserDefaults` for the avatar choice |
@@ -51,7 +52,7 @@ The interface is in Brazilian Portuguese. Code, comments and documentation are i
 | Connectivity | Network framework (`NWPathMonitor`) |
 | Tests | Swift Testing for unit tests, XCTest for UI tests and accessibility audits |
 
-The app uses Apple frameworks only. The single planned third-party dependency is FirebaseAuth (see [Authentication](#authentication)).
+Apple frameworks only, plus FirebaseAuth for accounts (see [Authentication](#authentication)).
 
 ## Architecture
 
@@ -121,15 +122,16 @@ xcodebuild test -project Xfaixa.xcodeproj -scheme Xfaixa \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
-**Unit tests (Swift Testing):** 58 cases, using mocks for every service:
+**Unit tests (Swift Testing):** 68 cases, using mocks for every service:
 
 - `SearchViewModel`: results, empty and error states, ignored cancellation, query trimming, debounce cancellation, suggestions bypassing the debounce, offline fail-fast, reconnection retry.
 - `AuthViewModel`: sign in and sign up validation, field and general errors, error clearing on edit, the password reset flow.
 - `ProfileViewModel`: avatar persistence per user, live favorites count, sign out success and failure.
 - `FavoritesStore`: add, remove and toggle, deduplication, ordering, persistence across instances, per-user scoping (in-memory SwiftData).
 - Networking: DTO mapping, artwork upscaling, URL building and percent-encoding, `URLError` mapping.
+- Firebase error mapping: every relevant Firebase error code translated to the app's `AuthError`.
 
-**UI tests (XCTest):** the sign in flow, wrong-password errors and navigation to sign up.
+**UI tests (XCTest):** the sign in flow, wrong-password errors and navigation to sign up. They launch the app with `-ui-testing`, which swaps Firebase for the in-memory backend, so they never depend on the network or on real accounts.
 
 Accessibility was checked with `performAccessibilityAudit()` and at the largest Dynamic Type size. Song rows switch to a stacked layout at accessibility sizes, so titles are never truncated to a few letters.
 
@@ -137,20 +139,26 @@ Accessibility was checked with `performAccessibilityAudit()` and at the largest 
 
 **Requirements:** Xcode 26 and an iOS 26.5 simulator or device.
 
-1. Clone the repository and open `Xfaixa.xcodeproj`.
+1. Clone the repository and open `Xfaixa.xcodeproj`. Xcode resolves the Firebase package on the first build.
 2. Choose an iPhone simulator and run (⌘R).
-3. Sign in with the demo account **demo@xfaixa.app** / **123456**, or create a new account.
+
+Without a Firebase configuration, the app runs on its built-in demo backend. Sign in with **demo@xfaixa.app** / **123456**. To use real accounts, follow the steps below.
 
 ## Authentication
 
-Authentication is defined by the `AuthService` protocol. The app currently runs on `InMemoryAuthService`, which simulates network latency and the same failure cases as a real provider. A `FirebaseAuthService` using email and password is the next step. Switching to it only changes `AppDependencies.live()`; views and view models stay untouched.
+Authentication is defined by the `AuthService` protocol, with two implementations:
+
+- **`FirebaseAuthService`**: Firebase Authentication with email and password. It is the only file that imports Firebase. It translates Firebase error codes into `AuthError`, whose messages are in Portuguese. Firebase keeps the session in the keychain, so returning users skip the login screen.
+- **`InMemoryAuthService`**: simulates latency and the same failure cases. It is used in previews, in UI tests, and as a fallback when there is no Firebase configuration.
+
+`AppDependencies.live()` is the only place that chooses between them.
 
 To configure Firebase:
 
 1. In the [Firebase console](https://console.firebase.google.com), create a project and register an iOS app with the bundle ID `devpedrovillalba.Xfaixa`.
 2. Under **Authentication → Sign-in method**, enable **Email/Password**.
 3. Download `GoogleService-Info.plist` and add it to the `Xfaixa/` folder in Xcode, with the Xfaixa target checked. The file is listed in `.gitignore`, so every developer provides their own.
-4. In Xcode, choose **File → Add Package Dependencies…**, enter `https://github.com/firebase/firebase-ios-sdk` and add only the **FirebaseAuth** product to the Xfaixa target.
+4. Build and run. The app detects the file and switches to Firebase automatically.
 
 ## Author
 
