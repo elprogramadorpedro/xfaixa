@@ -87,7 +87,7 @@ struct SearchView: View {
                             ChipButton(
                                 title: suggestion,
                                 systemImage: "music.note",
-                                tint: Self.chipTints[index % Self.chipTints.count].opacity(0.35)
+                                tint: Self.chipTints[index % Self.chipTints.count].opacity(0.2)
                             ) {
                                 viewModel.selectSuggestion(suggestion)
                             }
