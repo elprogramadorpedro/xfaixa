@@ -7,6 +7,7 @@ struct SearchView: View {
 
     @State private var viewModel: SearchViewModel
     @Environment(FavoritesStore.self) private var favoritesStore
+    @Environment(PlayerService.self) private var player
 
     private let connectivity: any ConnectivityMonitoring
 
@@ -119,8 +120,9 @@ struct SearchView: View {
                         artist: song.artist,
                         artworkURL: isPlaceholder ? nil : song.artworkURL,
                         isFavorite: !isPlaceholder && favoritesStore.isFavorite(song),
+                        isPlaying: !isPlaceholder && player.isPlaying(song),
                         onToggleFavorite: { favoritesStore.toggle(song) },
-                        onTogglePlay: {}
+                        onTogglePlay: { player.toggle(song) }
                     )
                 }
             }
@@ -136,9 +138,11 @@ struct SearchView: View {
 #Preview("Results") {
     SearchView(searchService: PreviewMusicSearchService(), connectivity: StaticConnectivityMonitor())
         .environment(FavoritesStore.preview())
+        .environment(PlayerService())
 }
 
 #Preview("Offline") {
     SearchView(searchService: PreviewMusicSearchService(), connectivity: StaticConnectivityMonitor(isConnected: false))
         .environment(FavoritesStore.preview(seeded: false))
+        .environment(PlayerService())
 }

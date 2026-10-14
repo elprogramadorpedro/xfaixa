@@ -8,6 +8,7 @@ struct FavoritesView: View {
     let onBrowse: () -> Void
 
     @Environment(FavoritesStore.self) private var favoritesStore
+    @Environment(PlayerService.self) private var player
 
     // MARK: - Body
 
@@ -40,8 +41,9 @@ struct FavoritesView: View {
                         artworkURL: favorite.artworkURL,
                         artworkData: favorite.artworkData,
                         isFavorite: true,
+                        isPlaying: player.isPlaying(favorite.song),
                         onToggleFavorite: { favoritesStore.remove(songId: favorite.songId) },
-                        onTogglePlay: {}
+                        onTogglePlay: { player.toggle(favorite.song) }
                     )
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
@@ -79,9 +81,11 @@ struct FavoritesView: View {
 #Preview("With favorites") {
     FavoritesView {}
         .environment(FavoritesStore.preview())
+        .environment(PlayerService())
 }
 
 #Preview("Empty") {
     FavoritesView {}
         .environment(FavoritesStore.preview(seeded: false))
+        .environment(PlayerService())
 }
